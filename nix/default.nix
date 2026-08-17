@@ -4,7 +4,7 @@
   stdenv,
   makeWrapper,
   makeFontsConf,
-  fish,
+  zsh,
   ddcutil,
   brightnessctl,
   networkmanager,
@@ -32,6 +32,15 @@
   debug ? false,
   withCli ? false,
   extraRuntimeDeps ? [],
+  # Extra font packages to make visible to the shell.
+  #
+  # FONTCONFIG_FILE below replaces fontconfig's config wholesale, and
+  # makeFontsConf replaces every <dir> with the ones listed here — so a font that
+  # is only installed system-wide (NixOS `fonts.packages`, i.e.
+  # /run/current-system/sw/share/fonts) is invisible to the shell and renders as
+  # tofu. Anything named in shell.json's `appearance.font` that is not one of the
+  # three defaults has to be passed here.
+  extraFonts ? [],
 }: let
   version = "1.0.0";
 
@@ -39,7 +48,7 @@
 
   runtimeDeps =
     [
-      fish
+      zsh
       ddcutil
       brightnessctl
       networkmanager
@@ -54,7 +63,7 @@
     ++ lib.optional withCli caelestia-cli;
 
   fontconfig = makeFontsConf {
-    fontDirectories = [material-symbols rubik nerd-fonts.caskaydia-cove];
+    fontDirectories = [material-symbols rubik nerd-fonts.caskaydia-cove] ++ extraFonts;
   };
 
   cmakeBuildType =
