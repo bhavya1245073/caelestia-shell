@@ -9,6 +9,10 @@ import qs.services
 Singleton {
     property ShellRoot shellRoot
 
+    // Text to put in the launcher's search box the next time it opens, so a keybind can
+    // open straight into a picker mode. Consumed and cleared by the launcher.
+    property string launcherQuery
+
     function anySidebarOpen(): bool {
         return states.instances.some(s => s.sidebar);
     }

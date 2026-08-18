@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Caelestia
+import Caelestia.Config
 import qs.components.misc
 import qs.services
 import qs.modules.nexus
@@ -11,6 +12,21 @@ Scope {
 
     property bool launcherInterrupted
     readonly property bool hasFullscreen: Hypr.focusedWorkspace?.toplevels.values.some(t => t.lastIpcObject.fullscreen > 1) ?? false
+
+    // Open the launcher with its search box already filled in.
+    //
+    // The text goes through ShellState rather than being set on the search field
+    // directly, because there is one launcher per screen and the field only exists once
+    // the drawer is realised.
+    function openLauncherWith(query: string): bool {
+        const screenState = ShellState.forActive();
+        if (!screenState)
+            return false;
+
+        ShellState.launcherQuery = query;
+        screenState.launcher = true;
+        return true;
+    }
 
     // qmllint disable unresolved-type
     CustomShortcut {
@@ -77,6 +93,18 @@ Scope {
     // qmllint disable unresolved-type
     CustomShortcut {
         // qmllint enable unresolved-type
+        name: "clipboard"
+        description: "Open clipboard history in the launcher"
+        onPressed: {
+            if (root.hasFullscreen)
+                return;
+            root.openLauncherWith(`${GlobalConfig.launcher.actionPrefix}clipboard `);
+        }
+    }
+
+    // qmllint disable unresolved-type
+    CustomShortcut {
+        // qmllint enable unresolved-type
         name: "launcherInterrupt"
         description: "Interrupt launcher keybind"
         onPressed: root.launcherInterrupted = true
@@ -106,6 +134,29 @@ Scope {
             const screenState = ShellState.forActive();
             screenState.utilities = !screenState.utilities;
         }
+    }
+
+    IpcHandler {
+        function open(query: string): string {
+            if (root.hasFullscreen)
+                return "A fullscreen window has focus";
+
+            // Prefilling is why this exists rather than reusing `drawers toggle launcher`:
+            // every picker mode is reached by a search prefix, so opening straight into
+            // one is the difference between a keybind working and it just opening a blank
+            // launcher.
+            return root.openLauncherWith(query) ? "Opened" : "No active screen";
+        }
+
+        function clipboard(): string {
+            return open(`${GlobalConfig.launcher.actionPrefix}clipboard `);
+        }
+
+        function gifs(): string {
+            return open(`${GlobalConfig.launcher.actionPrefix}gif `);
+        }
+
+        target: "launcher"
     }
 
     IpcHandler {

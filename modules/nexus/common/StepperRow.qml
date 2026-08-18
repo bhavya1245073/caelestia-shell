@@ -17,6 +17,9 @@ ConnectedRect {
     property real from: 0
     property real to: 99
     property real stepSize: 1
+    // Matches ToggleRow's API, so a group of settings that all depend on one switch can
+    // be greyed out together rather than only the toggles among them.
+    property bool disabled
 
     signal moved(value: real)
 
@@ -35,6 +38,7 @@ ConnectedRect {
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 0
+            opacity: root.disabled ? 0.4 : 1
 
             StyledText {
                 id: label
@@ -60,6 +64,7 @@ ConnectedRect {
             stepSize: root.stepSize
             value: root.value
             cLayer: 2
+            enabled: !root.disabled
             onValueModified: root.moved(value)
         }
     }

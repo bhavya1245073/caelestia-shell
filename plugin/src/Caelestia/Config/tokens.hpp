@@ -217,6 +217,15 @@ class LauncherTokens : public ConfigObject {
     // square clips, and a 16:9 tile letterboxes almost all of them.
     CONFIG_PROPERTY(int, gifWidth, 200)
     CONFIG_PROPERTY(int, gifHeight, 230)
+    // The clipboard row is a list beside a preview, so it needs to be wider than the
+    // app list: the point of the mode is seeing the entry, and a narrow preview of an
+    // image or a paragraph shows neither.
+    CONFIG_PROPERTY(int, clipboardWidth, 380)
+    CONFIG_PROPERTY(int, clipboardPreviewWidth, 340)
+    CONFIG_PROPERTY(int, clipboardHeight, 420)
+    // Thumbnails in the rows are deliberately small - they are there to tell entries
+    // apart at a glance, not to be looked at, which is what the preview is for.
+    CONFIG_PROPERTY(int, clipboardThumbSize, 40)
 
 public:
     explicit LauncherTokens(QObject* parent = nullptr)

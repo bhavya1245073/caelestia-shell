@@ -10,6 +10,7 @@ class AppearanceConfig;
 class BackgroundConfig;
 class BarConfig;
 class BorderConfig;
+class ClipboardConfig;
 class DashboardConfig;
 class GeneralConfig;
 class GifConfig;
@@ -34,6 +35,7 @@ class GlobalConfig : public RootConfig {
     Q_MOC_INCLUDE("backgroundconfig.hpp")
     Q_MOC_INCLUDE("barconfig.hpp")
     Q_MOC_INCLUDE("borderconfig.hpp")
+    Q_MOC_INCLUDE("clipboardconfig.hpp")
     Q_MOC_INCLUDE("dashboardconfig.hpp")
     Q_MOC_INCLUDE("generalconfig.hpp")
     Q_MOC_INCLUDE("gifconfig.hpp")
@@ -56,6 +58,7 @@ class GlobalConfig : public RootConfig {
     CONFIG_SUBOBJECT(BackgroundConfig, background)
     CONFIG_SUBOBJECT(BarConfig, bar)
     CONFIG_SUBOBJECT(BorderConfig, border)
+    CONFIG_SUBOBJECT(ClipboardConfig, clipboard)
     CONFIG_SUBOBJECT(DashboardConfig, dashboard)
     CONFIG_SUBOBJECT(GifConfig, gifs)
     CONFIG_SUBOBJECT(HyprlandConfig, hyprland)

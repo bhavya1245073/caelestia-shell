@@ -240,6 +240,52 @@ caelestia shell gifs setKey <key>       # set the key for the current provider
 caelestia shell gifs favourites         # list saved GIFs
 ```
 
+### Clipboard history
+
+Type `>clipboard` (or `>clip`) in the launcher for the whole history, or add a query
+to filter it. <kbd>Enter</kbd> copies, <kbd>Shift</kbd>+<kbd>Delete</kbd> removes the
+focused entry, and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Delete</kbd> wipes everything.
+
+The list sits beside a preview of the focused entry: image entries are decoded and
+shown as images, and text entries are shown in full rather than truncated to a first
+line. That is the reason this is in the launcher instead of a dmenu — `cliphist list`
+describes an image as the literal text `[[ binary data 210 KiB png 1918x1033 ]]`, so
+the one thing worth seeing before pasting is the one thing a dmenu cannot show.
+
+Matching is a plain substring search and keeps cliphist's recency order, because the
+entry you want is nearly always among the last few — fuzzy scoring would bury an exact
+recent match under older near-misses.
+
+Everything is adjustable in `Nexus > Panels > Launcher > Clipboard history`:
+
+| Setting | What it does |
+| ------- | ------------ |
+| History size | Entries cliphist keeps. 0 is unlimited. Defaults to 100000, against cliphist's own 750. |
+| Entries listed | How many the launcher shows and searches. 0 is all of them. |
+| Row length | Characters cliphist puts in its summary, which is what a row shows. |
+| Ignore clips shorter than | Keeps stray selections out of the history. |
+| Duplicate look-back | Recent entries checked before storing, so re-copying moves an entry instead of adding one. |
+| Largest image to preview | Past this, an entry shows its size instead of a thumbnail. |
+| Preview cache limit | Megabytes of decoded images to keep. Only a render cache — shrinking it loses no history. |
+
+The first five are cliphist's own `store` flags, so they need the shell to be running
+the watcher. *Manage the clipboard watcher* (on by default) does that, which is what
+lets those settings take effect without editing the compositor config and logging out.
+Turn it off if something else already starts `wl-paste --watch cliphist store`, and
+remove that from your config if it does — otherwise two watchers store every clip.
+
+```sh
+caelestia clipboard                     # open the launcher here
+caelestia shell clipboard list          # id and summary per entry
+caelestia shell clipboard copy <id>     # copy an entry back
+caelestia shell clipboard remove <id>   # delete one entry
+caelestia shell clipboard wipe          # clear the history
+```
+
+> [!NOTE]
+> Requires `cliphist` and `wl-clipboard`. *Paste after copying* additionally needs
+> `wtype`.
+
 ### PFP/Wallpapers
 
 The profile picture for the dashboard is read from the file `~/.face`, so to set
@@ -775,6 +821,21 @@ For example, to disable the bar on DP-1:
         "applyOnReload": true,
         "showAdvanced": false,
         "overrides": {}
+    },
+    "clipboard": {
+        "enabled": true,
+        "historyLimit": 100000,
+        "manageWatcher": true,
+        "minStoreLength": 0,
+        "previewWidth": 250,
+        "dedupeSearch": 200,
+        "maxEntries": 0,
+        "imagePreviews": true,
+        "maxPreviewSizeMb": 32,
+        "showPreview": true,
+        "cacheSizeMb": 500,
+        "pasteOnAccept": false,
+        "allowWipe": true
     },
     "lock": {
         "enabled": true,

@@ -68,6 +68,12 @@ class LauncherConfig : public ConfigObject {
                 { u"command"_s, QStringList{ u"autocomplete"_s, u"gif"_s } },
             }),
             vmap({
+                { u"name"_s, u"Clipboard"_s },
+                { u"icon"_s, u"content_paste"_s },
+                { u"description"_s, u"Search clipboard history and copy an entry back"_s },
+                { u"command"_s, QStringList{ u"autocomplete"_s, u"clipboard"_s } },
+            }),
+            vmap({
                 { u"name"_s, u"Variant"_s },
                 { u"icon"_s, u"colors"_s },
                 { u"description"_s, u"Change the current scheme variant"_s },

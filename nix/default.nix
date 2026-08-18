@@ -13,6 +13,7 @@
   wl-clipboard,
   curl,
   coreutils,
+  cliphist,
   libqalculate,
   bash,
   hyprland,
@@ -62,6 +63,10 @@
       # du/ls/rm.
       curl
       coreutils
+      # Clipboard history: the launcher lists, decodes and deletes entries through it,
+      # and runs the `wl-paste --watch cliphist store` pair itself so that the history
+      # limits in settings apply without a logout.
+      cliphist
       libqalculate
       bash
       hyprland

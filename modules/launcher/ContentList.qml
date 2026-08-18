@@ -22,8 +22,12 @@ Item {
     // `>gif` with no trailing space still counts: the empty query shows favourites,
     // so there is something worth showing before you type anything.
     readonly property bool showGifs: GlobalConfig.gifs.enabled && new RegExp(`^\\${GlobalConfig.launcher.actionPrefix}gif( |$)`).test(search.text)
-    readonly property var currentList: showGifs ? gifList.item : showWallpapers ? wallpaperList.item : appList.item // Can be either ListView or PathView, so can't type properly
-    property string animState: showGifs ? "gifs" : showWallpapers ? "wallpapers" : "apps"
+    // Same rule as GIFs: `>clipboard` with no query lists the whole history, so
+    // there is something useful on screen before you type. `>clip` also works,
+    // since that is what the prefix gets shortened to in practice.
+    readonly property bool showClipboard: GlobalConfig.clipboard.enabled && new RegExp(`^\\${GlobalConfig.launcher.actionPrefix}(clipboard|clip)( |$)`).test(search.text)
+    readonly property var currentList: showClipboard ? clipboardList.item : showGifs ? gifList.item : showWallpapers ? wallpaperList.item : appList.item // Can be either ListView or PathView, so can't type properly
+    property string animState: showClipboard ? "clipboard" : showGifs ? "gifs" : showWallpapers ? "wallpapers" : "apps"
 
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.bottom: parent.bottom
@@ -64,6 +68,15 @@ Item {
                 // sizes itself.
                 root.implicitHeight: root.Tokens.sizes.launcher.gifHeight + root.Tokens.padding.large * 2
                 gifList.active: true
+            }
+        },
+        State {
+            name: "clipboard"
+
+            PropertyChanges {
+                root.implicitWidth: clipboardList.implicitWidth
+                root.implicitHeight: Math.min(root.maxHeight, root.Tokens.sizes.launcher.clipboardHeight)
+                clipboardList.active: true
             }
         }
     ]
@@ -143,6 +156,24 @@ Item {
         }
     }
 
+    Loader {
+        id: clipboardList
+
+        asynchronous: true
+        active: false
+
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        sourceComponent: ClipboardList {
+            search: root.search
+            screenState: root.screenState
+            panels: root.panels
+            content: root.content
+        }
+    }
+
     Row {
         id: empty
 
@@ -163,6 +194,8 @@ Item {
             text: {
                 if (root.state === "gifs")
                     return Gifs.needsKey ? "key" : Gifs.error ? "error" : "gif_box";
+                if (root.state === "clipboard")
+                    return ClipHistory.error ? "error" : "content_paste_off";
                 return root.state === "wallpapers" ? "wallpaper_slideshow" : "manage_search";
             }
             color: Colours.palette.m3onSurfaceVariant
@@ -181,6 +214,8 @@ Item {
                             return qsTr("GIF search needs an API key");
                         return Gifs.showingFavourites ? qsTr("No saved GIFs") : qsTr("No GIFs found");
                     }
+                    if (root.state === "clipboard")
+                        return ClipHistory.error ? qsTr("Clipboard history unavailable") : qsTr("Nothing in the clipboard history");
                     return root.state === "wallpapers" ? qsTr("No wallpapers found") : qsTr("No results");
                 }
                 color: Colours.palette.m3onSurfaceVariant
@@ -199,6 +234,13 @@ Item {
                         if (Gifs.error && !Gifs.showingFavourites)
                             return Gifs.error;
                         return Gifs.showingFavourites ? qsTr("Type to search, then press the heart to save one") : qsTr("Try searching for something else");
+                    }
+                    if (root.state === "clipboard") {
+                        // cliphist missing or failing is the one case with a concrete cause, so
+                        // show what it said rather than a generic message.
+                        if (ClipHistory.error)
+                            return ClipHistory.error;
+                        return root.currentList?.query ? qsTr("No entry matches that") : qsTr("Copy something and it will show up here");
                     }
                     if (root.state === "wallpapers" && Wallpapers.list.length === 0)
                         return qsTr("Try putting some wallpapers in %1").arg(Paths.shortenHome(Paths.wallsdir));

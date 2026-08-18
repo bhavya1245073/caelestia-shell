@@ -71,7 +71,10 @@ Item {
 
             const currentItem = list.currentList?.currentItem;
             if (currentItem) {
-                if (list.showGifs) {
+                if (list.showClipboard) {
+                    ClipHistory.copy(currentItem.modelData);
+                    root.screenState.launcher = false;
+                } else if (list.showGifs) {
                     Gifs.copy(currentItem.modelData);
                     root.screenState.launcher = false;
                 } else if (list.showWallpapers) {
@@ -113,6 +116,27 @@ Item {
         Keys.onEscapePressed: root.screenState.launcher = false
 
         Keys.onPressed: event => {
+            // Clipboard entries are deletable in place, which the old fuzzel picker needed
+            // a whole second keybind and a separate `-d` mode for. Shift+Delete rather
+            // than Delete alone, since Delete belongs to the search field's text cursor.
+            if (list.showClipboard) {
+                const item = list.currentList?.currentItem;
+
+                if (item && (event.modifiers & Qt.ShiftModifier) && (event.key === Qt.Key_Delete || event.key === Qt.Key_Backspace)) {
+                    ClipHistory.remove(item.modelData);
+                    event.accepted = true;
+                    return;
+                }
+
+                // Wipe is Ctrl+Shift+Delete: destructive and not undoable, so it takes a
+                // deliberate three-key press rather than sitting next to single deletion.
+                if ((event.modifiers & Qt.ControlModifier) && (event.modifiers & Qt.ShiftModifier) && event.key === Qt.Key_Delete) {
+                    ClipHistory.wipe();
+                    event.accepted = true;
+                    return;
+                }
+            }
+
             // Save/unsave the focused GIF without leaving the keyboard. Ctrl+D because
             // Ctrl+F is a find shortcut everywhere else and Ctrl+S implies writing a file.
             if (list.showGifs && (event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_D) {
@@ -147,8 +171,19 @@ Item {
 
         Connections {
             function onLauncherChanged(): void {
-                if (!root.screenState.launcher)
+                if (!root.screenState.launcher) {
                     search.text = "";
+                    return;
+                }
+
+                // A keybind can ask for a mode to open into. Cleared on use so the next
+                // plain open is a normal empty launcher, and only applied on the screen
+                // that actually opened.
+                if (ShellState.launcherQuery) {
+                    search.text = ShellState.launcherQuery;
+                    ShellState.launcherQuery = "";
+                    search.cursorPosition = search.text.length;
+                }
             }
 
             function onSessionChanged(): void {

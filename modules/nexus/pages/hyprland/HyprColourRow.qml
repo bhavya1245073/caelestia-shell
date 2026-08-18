@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Caelestia.Config
 import qs.components
 import qs.components.controls
+import qs.components.misc
 import qs.services
 import qs.modules.nexus.common
 
@@ -92,22 +93,8 @@ ConnectedRect {
             radius: Tokens.rounding.full
             color: Colours.palette.m3surfaceContainerHighest
 
-            Grid {
-                anchors.centerIn: parent
-                columns: 4
-                rows: 4
-
-                Repeater {
-                    model: 16
-
-                    Rectangle {
-                        required property int index
-
-                        implicitWidth: Tokens.padding.large / 2
-                        implicitHeight: implicitWidth
-                        color: (index % 4 + Math.floor(index / 4)) % 2 === 0 ? Colours.palette.m3outlineVariant : "transparent"
-                    }
-                }
+            Chequerboard {
+                anchors.fill: parent
             }
 
             Rectangle {

@@ -129,7 +129,6 @@ Singleton {
     // `--type image/gif` is what makes chat apps treat this as an animation to upload
     // rather than a still frame.
     readonly property string copyScript: `
-        shift
         url=$1; dir=$2; name=$3; alsotext=$4; maxmb=$5
         mkdir -p "$dir" || exit 1
         f="$dir/$name"

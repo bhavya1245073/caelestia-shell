@@ -289,6 +289,148 @@ PageBase {
             disabled: Gifs.favourites.length === 0
             onClicked: Gifs.clearFavourites()
         }
+
+        // Clipboard
+        SectionHeader {
+            text: qsTr("Clipboard history")
+        }
+
+        ToggleRow {
+            first: true
+            text: qsTr("Enabled")
+            subtext: qsTr("Browse clipboard history with %1clipboard, with images and full text shown").arg(GlobalConfig.launcher.actionPrefix)
+            checked: GlobalConfig.clipboard.enabled
+            onToggled: GlobalConfig.clipboard.enabled = checked
+        }
+
+        ToggleRow {
+            text: qsTr("Manage the clipboard watcher")
+            subtext: qsTr("Run cliphist from the shell, so the limits below apply without logging out. Turn off if something else already starts it.")
+            checked: GlobalConfig.clipboard.manageWatcher
+            disabled: !GlobalConfig.clipboard.enabled
+            onToggled: GlobalConfig.clipboard.manageWatcher = checked
+        }
+
+        StepperRow {
+            label: qsTr("History size")
+            // Named as an entry count rather than "max items" because the number is not a
+            // storage budget: entries are small, and this is really "how far back can I go".
+            subtext: GlobalConfig.clipboard.historyLimit > 0 ? qsTr("Entries cliphist keeps before dropping the oldest") : qsTr("Unlimited \u2014 nothing is ever dropped")
+            value: GlobalConfig.clipboard.historyLimit
+            from: 0
+            to: 1000000
+            stepSize: 1000
+            disabled: !GlobalConfig.clipboard.manageWatcher
+            onMoved: v => GlobalConfig.clipboard.historyLimit = v
+        }
+
+        StepperRow {
+            label: qsTr("Entries listed")
+            subtext: GlobalConfig.clipboard.maxEntries > 0 ? qsTr("How many the launcher shows and searches") : qsTr("Show and search the whole history")
+            value: GlobalConfig.clipboard.maxEntries
+            from: 0
+            to: 10000
+            stepSize: 50
+            disabled: !GlobalConfig.clipboard.enabled
+            onMoved: v => GlobalConfig.clipboard.maxEntries = v
+        }
+
+        StepperRow {
+            label: qsTr("Row length")
+            subtext: qsTr("Characters of an entry cliphist puts in its summary, which is what a row shows")
+            value: GlobalConfig.clipboard.previewWidth
+            from: 20
+            to: 2000
+            stepSize: 10
+            disabled: !GlobalConfig.clipboard.manageWatcher
+            onMoved: v => GlobalConfig.clipboard.previewWidth = v
+        }
+
+        StepperRow {
+            label: qsTr("Ignore clips shorter than")
+            subtext: qsTr("Characters. Above 0 this keeps stray selections out of the history.")
+            value: GlobalConfig.clipboard.minStoreLength
+            from: 0
+            to: 100
+            disabled: !GlobalConfig.clipboard.manageWatcher
+            onMoved: v => GlobalConfig.clipboard.minStoreLength = v
+        }
+
+        StepperRow {
+            label: qsTr("Duplicate look-back")
+            subtext: qsTr("Recent entries checked before storing, so re-copying moves an entry instead of adding one")
+            value: GlobalConfig.clipboard.dedupeSearch
+            from: 1
+            to: 5000
+            stepSize: 25
+            disabled: !GlobalConfig.clipboard.manageWatcher
+            onMoved: v => GlobalConfig.clipboard.dedupeSearch = v
+        }
+
+        ToggleRow {
+            text: qsTr("Show the preview panel")
+            subtext: qsTr("The focused entry in full, beside the list")
+            checked: GlobalConfig.clipboard.showPreview
+            disabled: !GlobalConfig.clipboard.enabled
+            onToggled: GlobalConfig.clipboard.showPreview = checked
+        }
+
+        ToggleRow {
+            text: qsTr("Image previews")
+            subtext: qsTr("Decode image entries and show them. Off describes them instead.")
+            checked: GlobalConfig.clipboard.imagePreviews
+            disabled: !GlobalConfig.clipboard.enabled
+            onToggled: GlobalConfig.clipboard.imagePreviews = checked
+        }
+
+        StepperRow {
+            label: qsTr("Largest image to preview")
+            subtext: GlobalConfig.clipboard.maxPreviewSizeMb > 0 ? qsTr("Megabytes. Bigger entries show their size instead of a thumbnail.") : qsTr("No limit \u2014 every image is decoded")
+            value: GlobalConfig.clipboard.maxPreviewSizeMb
+            from: 0
+            to: 512
+            stepSize: 4
+            disabled: !GlobalConfig.clipboard.imagePreviews
+            onMoved: v => GlobalConfig.clipboard.maxPreviewSizeMb = v
+        }
+
+        StepperRow {
+            label: qsTr("Preview cache limit")
+            // Worth distinguishing from the history size: this one is safe to shrink,
+            // because everything in it can be decoded again from cliphist.
+            subtext: qsTr("Megabytes of decoded images to keep. Only a render cache \u2014 shrinking it loses no history.")
+            value: GlobalConfig.clipboard.cacheSizeMb
+            from: 10
+            to: 5000
+            stepSize: 10
+            disabled: !GlobalConfig.clipboard.imagePreviews
+            onMoved: v => GlobalConfig.clipboard.cacheSizeMb = v
+        }
+
+        ToggleRow {
+            text: qsTr("Paste after copying")
+            subtext: qsTr("Send a paste keystroke to the window that had focus. Needs wtype installed.")
+            checked: GlobalConfig.clipboard.pasteOnAccept
+            disabled: !GlobalConfig.clipboard.enabled
+            onToggled: GlobalConfig.clipboard.pasteOnAccept = checked
+        }
+
+        ToggleRow {
+            text: qsTr("Allow wiping from the launcher")
+            subtext: qsTr("Enables Ctrl+Shift+Delete, which clears the whole history and cannot be undone")
+            checked: GlobalConfig.clipboard.allowWipe
+            disabled: !GlobalConfig.clipboard.enabled
+            onToggled: GlobalConfig.clipboard.allowWipe = checked
+        }
+
+        RowButton {
+            last: true
+            icon: "delete_sweep"
+            text: qsTr("Clear clipboard history")
+            subtext: ClipHistory.entries.length === 1 ? qsTr("1 entry") : qsTr("%1 entries").arg(ClipHistory.entries.length)
+            disabled: !GlobalConfig.clipboard.allowWipe || ClipHistory.entries.length === 0
+            onClicked: ClipHistory.wipe()
+        }
     }
 
     component ProviderItem: MenuItem {

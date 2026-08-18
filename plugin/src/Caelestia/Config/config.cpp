@@ -3,6 +3,7 @@
 #include "backgroundconfig.hpp"
 #include "barconfig.hpp"
 #include "borderconfig.hpp"
+#include "clipboardconfig.hpp"
 #include "dashboardconfig.hpp"
 #include "generalconfig.hpp"
 #include "gifconfig.hpp"
@@ -42,6 +43,7 @@ GlobalConfig::GlobalConfig(QObject* parent)
     , m_bar(new BarConfig(this))
     , m_border(new BorderConfig(this))
     , m_dashboard(new DashboardConfig(this))
+    , m_clipboard(new ClipboardConfig(this))
     , m_gifs(new GifConfig(this))
     , m_hyprland(new HyprlandConfig(this))
     , m_launcher(new LauncherConfig(this))
@@ -66,6 +68,7 @@ GlobalConfig::GlobalConfig(GlobalConfig* fallback, const QString& filePath, cons
     , m_bar(new BarConfig(this))
     , m_border(new BorderConfig(this))
     , m_dashboard(new DashboardConfig(this))
+    , m_clipboard(new ClipboardConfig(this))
     , m_gifs(new GifConfig(this))
     , m_hyprland(new HyprlandConfig(this))
     , m_launcher(new LauncherConfig(this))

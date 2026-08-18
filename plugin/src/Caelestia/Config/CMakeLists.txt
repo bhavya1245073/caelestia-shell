@@ -18,6 +18,7 @@ qml_module(caelestia-config
         barconfig.hpp
         borderconfig.hpp
         dashboardconfig.hpp
+        clipboardconfig.hpp
         gifconfig.hpp
         hyprlandconfig.hpp
         generalconfig.hpp
