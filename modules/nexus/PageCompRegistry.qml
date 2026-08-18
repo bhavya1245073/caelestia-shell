@@ -10,6 +10,7 @@ import qs.modules.nexus.pages
 import qs.modules.nexus.pages.apps
 import qs.modules.nexus.pages.audio
 import qs.modules.nexus.pages.bluetooth
+import qs.modules.nexus.pages.hyprland
 import qs.modules.nexus.pages.network
 import qs.modules.nexus.pages.panels
 import qs.modules.nexus.pages.services
@@ -35,6 +36,17 @@ QtObject {
                 }
                 Component {
                     ColourSelect {}
+                }
+            }
+        },
+        Component {
+            // Window manager
+            StackPage {
+                Component {
+                    HyprlandPage {}
+                }
+                Component {
+                    HyprCategoryPage {}
                 }
             }
         },

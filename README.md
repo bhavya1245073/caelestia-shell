@@ -179,6 +179,67 @@ target wallpaper
   function list(): string
 ```
 
+### Window manager settings
+
+`Nexus > Appearance > Window manager` edits Hyprland live.
+
+The page is generated from `hyprctl descriptions`, so every option this Hyprland
+version has is present and correctly typed — booleans get switches, bounded numbers
+get sliders or spin boxes, enums get dropdowns, colours get a swatch — and options
+added by a future Hyprland release appear without a shell update. A curated
+"look and feel" section covers the things people actually change (gaps, borders,
+rounding, blur, shadows, opacity, animations, focus, keyboard, touchpad, gestures,
+tiling), and every category is reachable in full below it, with search.
+
+Hyprland cannot write its own config file, and `hyprctl keyword` changes are lost on
+the next reload. So anything set here is stored in `shell.json` under `hyprland.overrides`
+and replayed onto the compositor on startup and after every config reload. Your
+Hyprland config remains the source of truth for everything you have not touched;
+resetting an option (the ↺ button) drops the override and reloads the config so the
+file's value comes back.
+
+```sh
+caelestia shell hyprsettings list                    # show overrides
+caelestia shell hyprsettings set decoration:rounding 18
+caelestia shell hyprsettings unset decoration:rounding
+caelestia shell hyprsettings reset                   # drop all overrides
+```
+
+> [!NOTE]
+> Options under `debug`, `experimental`, `render`, `opengl`, `quirks`, `ecosystem`
+> and `input-capture` are hidden until you enable *Show advanced sections*, since
+> several of them can hang or visually break the compositor.
+
+### GIF picker
+
+Type `>gif` in the launcher for saved GIFs, or `>gif <query>` to search. Results
+appear in the same carousel the wallpaper picker uses — arrow keys or scroll to move,
+<kbd>Enter</kbd> to copy, <kbd>Ctrl</kbd>+<kbd>D</kbd> to save/unsave the focused GIF.
+Saved GIFs live in `shell.json`, so they survive restarts.
+
+Copying downloads the GIF and puts it on the clipboard as `image/gif`, so pasting
+into a chat uploads the animation rather than a still frame. The URL is copied as
+`text/plain` at the same time for apps that only take text. Both behaviours are
+configurable.
+
+A provider API key is required. Pick a provider in
+`Nexus > Panels > Launcher > GIF picker`, then use *Get a key* to open its signup
+page and paste the key in. Keys are stored per provider, so switching back and forth
+does not lose them.
+
+| Provider | Notes |
+| -------- | ----- |
+| **Klipy** (default) | Free with no expiry. Run by ex-Tenor staff; the service Bluesky and Zulip moved to. |
+| **Giphy** | Free beta keys work but are rate limited. |
+| **Tenor** | [Discontinued by Google on 30 June 2026](https://arstechnica.com/gadgets/2026/06/google-kills-tenor-gif-api-forcing-changes-at-x-discord-and-more/). Kept only so an existing key still works; no new keys are issued. |
+
+```sh
+caelestia shell gifs providers          # list providers and which have keys
+caelestia shell gifs provider klipy     # switch provider
+caelestia shell gifs setKey <key>       # set the key for the current provider
+caelestia shell gifs favourites         # list saved GIFs
+```
+
 ### PFP/Wallpapers
 
 The profile picture for the dashboard is read from the file `~/.face`, so to set
@@ -690,6 +751,30 @@ For example, to disable the bar on DP-1:
                 "dangerous": false
             }
         ]
+    },
+    "gifs": {
+        "enabled": true,
+        "provider": "klipy",
+        "apiKeys": {
+            "klipy": "",
+            "giphy": "",
+            "tenor": ""
+        },
+        "limit": 30,
+        "contentFilter": "medium",
+        "searchDebounce": 350,
+        "cacheSizeMb": 200,
+        "copyFile": true,
+        "copyUrlAsText": true,
+        "locale": "",
+        "customerId": "",
+        "favourites": []
+    },
+    "hyprland": {
+        "enabled": true,
+        "applyOnReload": true,
+        "showAdvanced": false,
+        "overrides": {}
     },
     "lock": {
         "enabled": true,

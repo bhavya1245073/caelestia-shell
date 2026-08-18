@@ -16,6 +16,7 @@ class HyprExtras : public QObject {
     Q_MOC_INCLUDE("hyprdevices.hpp")
 
     Q_PROPERTY(QVariantHash options READ options NOTIFY optionsChanged)
+    Q_PROPERTY(QVariantList optionDescriptions READ optionDescriptions NOTIFY optionsChanged)
     Q_PROPERTY(caelestia::internal::hypr::HyprDevices* devices READ devices CONSTANT)
     Q_PROPERTY(bool usingLua MEMBER m_usingLua NOTIFY usingLuaChanged)
 
@@ -23,11 +24,19 @@ public:
     explicit HyprExtras(QObject* parent = nullptr);
 
     [[nodiscard]] QVariantHash options() const;
+    // The full `hyprctl descriptions` table, in Hyprland's own order: one map per
+    // option with name/category/key/description/type/default/current/min/max/map.
+    // Order matters - it is the grouping the wiki uses, so a GUI that walks this
+    // list gets sensible sections for free.
+    [[nodiscard]] QVariantList optionDescriptions() const;
     [[nodiscard]] HyprDevices* devices() const;
 
     Q_INVOKABLE void message(const QString& message);
     Q_INVOKABLE void batchMessage(const QStringList& messages);
     Q_INVOKABLE void applyOptions(const QVariantHash& options);
+    // Re-reads the Hyprland config file, discarding every runtime `keyword`
+    // override. The only way to undo an override back to the file's value.
+    Q_INVOKABLE void reloadConfig();
 
     Q_INVOKABLE void refreshOptions();
     Q_INVOKABLE void refreshDevices();
@@ -46,6 +55,7 @@ private:
     bool m_usingLua = false;
 
     QVariantHash m_options;
+    QVariantList m_optionDescriptions;
     HyprDevices* const m_devices;
 
     SocketPtr m_optionsRefresh;

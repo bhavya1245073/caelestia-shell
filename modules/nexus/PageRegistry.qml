@@ -13,6 +13,12 @@ QtObject {
             description: qsTr("Wallpaper, fonts, colours"),
             category: "appearance"
         },
+        {
+            label: qsTr("Window manager"),
+            icon: "select_window",
+            description: qsTr("Gaps, borders, blur, animations, input"),
+            category: "appearance"
+        },
 
         // Connectivity
         // TODO

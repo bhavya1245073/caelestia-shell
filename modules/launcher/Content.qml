@@ -61,9 +61,20 @@ Item {
         placeholderText: qsTr("Type \"%1\" for commands").arg(GlobalConfig.launcher.actionPrefix)
 
         onAccepted: {
+            // Nothing to pick when no key is configured, so make enter do the only useful
+            // thing available: open the provider's key page.
+            if (list.showGifs && Gifs.needsKey) {
+                Gifs.openKeyPage();
+                root.screenState.launcher = false;
+                return;
+            }
+
             const currentItem = list.currentList?.currentItem;
             if (currentItem) {
-                if (list.showWallpapers) {
+                if (list.showGifs) {
+                    Gifs.copy(currentItem.modelData);
+                    root.screenState.launcher = false;
+                } else if (list.showWallpapers) {
                     if (Colours.scheme === "dynamic" && currentItem.modelData.path !== Wallpapers.actualCurrent)
                         Wallpapers.previewColourLock = true;
                     Wallpapers.setWallpaper(currentItem.modelData.path);
@@ -83,9 +94,35 @@ Item {
         Keys.onUpPressed: list.currentList?.decrementCurrentIndex()
         Keys.onDownPressed: list.currentList?.incrementCurrentIndex()
 
+        // The picker rows are horizontal, so left/right is what people actually reach
+        // for. Only bound in those modes - elsewhere they belong to the text cursor.
+        Keys.onLeftPressed: event => {
+            if (list.showGifs || list.showWallpapers)
+                list.currentList?.decrementCurrentIndex();
+            else
+                event.accepted = false;
+        }
+
+        Keys.onRightPressed: event => {
+            if (list.showGifs || list.showWallpapers)
+                list.currentList?.incrementCurrentIndex();
+            else
+                event.accepted = false;
+        }
+
         Keys.onEscapePressed: root.screenState.launcher = false
 
         Keys.onPressed: event => {
+            // Save/unsave the focused GIF without leaving the keyboard. Ctrl+D because
+            // Ctrl+F is a find shortcut everywhere else and Ctrl+S implies writing a file.
+            if (list.showGifs && (event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_D) {
+                const item = list.currentList?.currentItem;
+                if (item)
+                    Gifs.toggleFavourite(item.modelData);
+                event.accepted = true;
+                return;
+            }
+
             if (!GlobalConfig.launcher.vimKeybinds)
                 return;
 

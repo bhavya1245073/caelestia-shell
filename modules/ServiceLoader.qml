@@ -9,6 +9,10 @@ Scope {
 
         IdleInhibitor;
         GameMode;
+        // Replays GlobalConfig.hyprland.overrides onto the compositor. Must be eager:
+        // nothing references it until the Nexus page is opened, and by then the
+        // session has been running with unapplied settings.
+        HyprSettings;
         Notifs;
         Players;
         Brightness;

@@ -5,6 +5,8 @@
 #include "borderconfig.hpp"
 #include "dashboardconfig.hpp"
 #include "generalconfig.hpp"
+#include "gifconfig.hpp"
+#include "hyprlandconfig.hpp"
 #include "launcherconfig.hpp"
 #include "lockconfig.hpp"
 #include "monitorconfigmanager.hpp"
@@ -40,6 +42,8 @@ GlobalConfig::GlobalConfig(QObject* parent)
     , m_bar(new BarConfig(this))
     , m_border(new BorderConfig(this))
     , m_dashboard(new DashboardConfig(this))
+    , m_gifs(new GifConfig(this))
+    , m_hyprland(new HyprlandConfig(this))
     , m_launcher(new LauncherConfig(this))
     , m_lock(new LockConfig(this))
     , m_nexus(new NexusConfig(this))
@@ -62,6 +66,8 @@ GlobalConfig::GlobalConfig(GlobalConfig* fallback, const QString& filePath, cons
     , m_bar(new BarConfig(this))
     , m_border(new BorderConfig(this))
     , m_dashboard(new DashboardConfig(this))
+    , m_gifs(new GifConfig(this))
+    , m_hyprland(new HyprlandConfig(this))
     , m_launcher(new LauncherConfig(this))
     , m_lock(new LockConfig(this))
     , m_nexus(new NexusConfig(this))

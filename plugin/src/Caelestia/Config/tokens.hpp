@@ -213,6 +213,10 @@ class LauncherTokens : public ConfigObject {
     CONFIG_PROPERTY(int, itemHeight, 57)
     CONFIG_PROPERTY(int, wallpaperWidth, 280)
     CONFIG_PROPERTY(int, wallpaperHeight, 200)
+    // GIF tiles are squarer than wallpapers: search results are mostly portrait or
+    // square clips, and a 16:9 tile letterboxes almost all of them.
+    CONFIG_PROPERTY(int, gifWidth, 200)
+    CONFIG_PROPERTY(int, gifHeight, 230)
 
 public:
     explicit LauncherTokens(QObject* parent = nullptr)

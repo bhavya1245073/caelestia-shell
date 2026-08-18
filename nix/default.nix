@@ -11,6 +11,8 @@
   lm_sensors,
   swappy,
   wl-clipboard,
+  curl,
+  coreutils,
   libqalculate,
   bash,
   hyprland,
@@ -55,6 +57,11 @@
       lm_sensors
       swappy
       wl-clipboard
+      # The launcher's GIF picker downloads the chosen GIF before putting it on the
+      # clipboard (wl-copy can only serve bytes it has), and trims its cache with
+      # du/ls/rm.
+      curl
+      coreutils
       libqalculate
       bash
       hyprland
