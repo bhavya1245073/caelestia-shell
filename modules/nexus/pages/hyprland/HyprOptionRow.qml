@@ -52,7 +52,6 @@ Item {
     // A slider only reads well over a range with room to aim at. Below that a spin
     // box is both more precise and less fiddly.
     readonly property bool useSlider: type === "number" && hasRange && !hasEnum && (isFloat || desc.max - desc.min >= 4)
-    readonly property bool isColour: type === "string" && (name.includes("col.") || name.endsWith("_color") || /^(rgba?\(|0x)/.test(`${value}`) || /^[0-9a-fA-F]{8}( |$)/.test(`${value}`))
 
     // "no_gaps_when_only" -> "No gaps when only". Hyprland's own names are
     // snake_case and its descriptions are full sentences, so neither works as a
@@ -109,7 +108,10 @@ Item {
                 return sliderComp;
             if (root.type === "number")
                 return stepperComp;
-            if (root.isColour)
+            // Gradients and plain colours both get the swatch row. HyprExtras reports
+            // the type, so this catches decoration:glow:color as readily as
+            // general:col.active_border, without a name-matching heuristic.
+            if (root.type === "gradient" || root.type === "color")
                 return colourComp;
             return textComp;
         }

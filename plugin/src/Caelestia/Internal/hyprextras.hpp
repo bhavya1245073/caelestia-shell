@@ -55,6 +55,8 @@ private:
     bool m_usingLua = false;
 
     QVariantHash m_options;
+    // name -> inferred lua type, needed to serialise values back correctly.
+    QHash<QString, QString> m_optionTypes;
     QVariantList m_optionDescriptions;
     HyprDevices* const m_devices;
 

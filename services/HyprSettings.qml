@@ -154,7 +154,6 @@ Singleton {
         pending[name] = value;
         applyTimer.restart();
     }
-
     function applyAll(): void {
         if (!GlobalConfig.hyprland.enabled)
             return;
@@ -170,8 +169,15 @@ Singleton {
 
     // `descriptions` arrives asynchronously; apply as soon as we know the option
     // names are real (and thus which stale overrides to drop).
-    onReadyChanged: if (ready)
-        applyAll()
+    onReadyChanged: syncTimer.restart()
+
+    // The config file load is also asynchronous, and either order happens in
+    // practice: HyprExtras calls refreshOptions() from its constructor, so the
+    // option table can land before shell.json is read, in which case the first sync
+    // sees an empty override map and nothing would ever retry it.
+    onOverridesChanged: syncTimer.restart()
+
+    Component.onCompleted: syncTimer.restart()
 
     LoggingCategory {
         id: logCat
@@ -180,6 +186,20 @@ Singleton {
         defaultLogLevel: LoggingCategory.Info
     }
 
+    // Full re-sync, coalesced. Fires on startup, when the option table or the
+    // override map lands, and after a reload. Long enough that dragging a slider
+    // (which already applies through the fast path below) collapses into one
+    // trailing sync instead of re-sending every override each frame.
+    Timer {
+        id: syncTimer
+
+        interval: 200
+        onTriggered: root.applyAll()
+    }
+
+    // Coalesce rapid edits (a slider drag is one call per frame) into a single
+    // batched hyprctl request. Without this, dragging a gap slider floods the
+    // socket and each request triggers a `descriptions` refresh.
     Timer {
         id: applyTimer
 
